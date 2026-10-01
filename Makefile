@@ -1,11 +1,15 @@
-.PHONY: build
-
+CC := cc
+CFLAGS := -Wall
 PROJECT := $(CURDIR)
 BUILD := $(PROJECT)/build
-SOURCES := $(PROJECT)/src/crypto
+SOURCES := $(PROJECT)/src/crypto/.c*
+TARGET := $(BUILD)/main
+
+.PHONY: build
 
 build:
-	cc $(SOURCES)/main.c \
-	$(SOURCES)/encryptor.c \
-	-lsodium -o $(BUILD)/main
+	mkdir -p $(BUILD)
+	$(CC) $(CFLAGS)\
+	$(SOURCES)\
+	-lsodium -lncursesw -o $(TARGET)
 
