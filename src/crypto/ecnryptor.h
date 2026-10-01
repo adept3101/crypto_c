@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <sodium/randombytes.h>
 
 typedef struct {
   unsigned char *cipher_text;
