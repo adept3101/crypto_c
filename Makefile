@@ -2,14 +2,16 @@ CC := cc
 CFLAGS := -Wall
 PROJECT := $(CURDIR)
 BUILD := $(PROJECT)/build
-SOURCES := $(PROJECT)/src/crypto/.c*
+SOURCES := $(PROJECT)/src/crypto/*.c
 TARGET := $(BUILD)/main
 
-.PHONY: build
+.PHONY: all clean
 
-build:
+all:
 	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS)\
-	$(SOURCES)\
+	$(CC) $(CFLAGS) \
+	$(SOURCES) \
 	-lsodium -lncursesw -o $(TARGET)
 
+clean:
+	rm -rf $(BUILD)
