@@ -1,4 +1,4 @@
-#include "ecnryptor.h"
+#include "encryptor.h"
 #include <ncurses.h>
 #include <sodium.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-#include "ecnryptor.h"
+#include "encryptor.h"
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/randombytes.h>
 
@@ -36,20 +36,20 @@ encrypted_data encrypt(const unsigned char *text, const unsigned char *key) {
   return obj;
 }
 
-unsigned char *encode(const unsigned char data[], size_t size_dt) {
+unsigned char *encode(const unsigned char data[], size_t size_data) {
   const char map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                      "abcdefghijklmnopqrstuvwxyz"
-                     "0123456789=";
+                     "0123456789+/";
 
-  size_t result_size = 4 * ((size_dt + 2) / 3);
+  size_t result_size = 4 * ((size_data + 2) / 3);
 
   unsigned char *result = malloc(result_size + 1);
   // size_t size_dt = sizeof(data[0]) / sizeof(unsigned char);
   // size_t size_dt = sizeof(data);
   size_t pos = 0;
 
-  for (int i = 0; i < size_dt; i += 3) {
-    size_t remaining = size_dt - i;
+  for (size_t i = 0; i < size_data; i += 3) {
+    size_t remaining = size_data - i;
 
     unsigned char a = data[i];
     unsigned char b = remaining > 1 ? data[i + 1] : 0;
