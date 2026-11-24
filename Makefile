@@ -9,7 +9,7 @@ TARGET := $(BUILD)/main
 
 all:
 	mkdir -p $(BUILD)
-	$(CC) $(CFLAGS) \
+	$(CC) $(CFLAGS) -g -O0 \
 	$(SOURCES) \
 	-lsodium -lncursesw -o $(TARGET)
 
