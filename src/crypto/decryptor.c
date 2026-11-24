@@ -1,8 +1,10 @@
 #include "decryptor.h"
 #include "encryptor.h"
+#include <sodium/crypto_aead_chacha20poly1305.h>
 #include <string.h>
 
-unsigned char decrypt(const unsigned char *cipher, const unsigned char key) {}
+// unsigned char decrypt(const unsigned char *cipher, const unsigned char key)
+// {}
 
 unsigned char *decode(const unsigned char data[], size_t size_data,
                       size_t *decoded_size) {
@@ -74,4 +76,26 @@ unsigned char *decode(const unsigned char data[], size_t size_data,
   }
 
   return result;
+}
+
+unsigned char decrypt(const unsigned char *cipher, const unsigned char *key) {
+  size_t size_txt = strlen((const char *)cipher);
+
+  unsigned char *cipher_text =
+      malloc(size_txt + crypto_aead_chacha20poly1305_ietf_ABYTES);
+  unsigned char *nonce = malloc(crypto_aead_chacha20poly1305_ietf_NPUBBYTES);
+  unsigned long long cipher_len;
+  int ae = crypto_aead_chacha20poly1305_ietf_encrypt(
+      cipher_text, &cipher_len, cipher, size_txt, NULL, 0, NULL, nonce, key);
+
+  if (ae != 0) {
+    free(cipher_text);
+    free(nonce);
+    cipher_text = NULL;
+    nonce = NULL;
+
+    return *cipher_text;
+  }
+
+  return *cipher_text;
 }
