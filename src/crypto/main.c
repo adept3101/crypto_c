@@ -38,6 +38,7 @@ static void draw_ui(int y, int x, const char *input, int len, int selected,
   mvprintw(y + 1, x + 1, "%-*s", MAX_LEN, input);
 
   draw_button(y + 4, x, "Encrypt", selected);
+  draw_button(y + 8, x, "Decrypt", selected);
 
   mvprintw(y + 6, x, "%-*s", BOX_W, status);
   mvprintw(y + 12, x, "Tab/Down/Up - move, Enter - confirm");
