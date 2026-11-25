@@ -10,6 +10,7 @@
 typedef struct {
   unsigned char *cipher_text;
   unsigned char *nonce;
+  unsigned long long cipher_len;
 } encrypted_data;
 
 encrypted_data encrypt(const unsigned char *text, const unsigned char *key);

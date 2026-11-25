@@ -5,20 +5,30 @@
 encrypted_data encrypt(const unsigned char *text, const unsigned char *key) {
   encrypted_data obj = {0};
 
-  obj.nonce = malloc(crypto_aead_chacha20poly1305_ietf_NPUBBYTES);
+  if (text == NULL || key == NULL) {
+    return obj;
+  }
 
-  // size_t size_nnc = sizeof(obj.nonce) / sizeof(unsigned char);
-  // size_t size_nnc = crypto_aead_chacha20poly1305_ietf_NPUBBYTES;
   size_t size_txt = strlen((const char *)text);
+
+  obj.nonce = malloc(crypto_aead_chacha20poly1305_ietf_NPUBBYTES);
+  obj.cipher_text = malloc(size_txt + crypto_aead_chacha20poly1305_ietf_ABYTES);
+
+  if (obj.nonce == NULL || obj.cipher_text == NULL) {
+    free(obj.nonce);
+    free(obj.cipher_text);
+
+    obj.nonce = NULL;
+    obj.cipher_text = NULL;
+
+    return obj;
+  }
 
   randombytes_buf(obj.nonce, crypto_aead_chacha20poly1305_ietf_NPUBBYTES);
 
-  obj.cipher_text = malloc(size_txt + crypto_aead_chacha20poly1305_ietf_ABYTES);
-  unsigned long long cipher_len;
-
   int ae = crypto_aead_chacha20poly1305_ietf_encrypt(
-      obj.cipher_text, &cipher_len, text, size_txt, NULL, 0, NULL, obj.nonce,
-      key);
+      obj.cipher_text, &obj.cipher_len, text, size_txt, NULL, 0, NULL,
+      obj.nonce, key);
 
   if (ae != 0) {
     free(obj.nonce);
@@ -30,10 +40,10 @@ encrypted_data encrypt(const unsigned char *text, const unsigned char *key) {
     return obj;
   }
 
+  return obj;
+
   free(obj.nonce);
   free(obj.cipher_text);
-
-  return obj;
 }
 
 unsigned char *encode(const unsigned char data[], size_t size_data) {
@@ -44,8 +54,6 @@ unsigned char *encode(const unsigned char data[], size_t size_data) {
   size_t result_size = 4 * ((size_data + 2) / 3);
 
   unsigned char *result = malloc(result_size + 1);
-  // size_t size_dt = sizeof(data[0]) / sizeof(unsigned char);
-  // size_t size_dt = sizeof(data);
   size_t pos = 0;
 
   for (size_t i = 0; i < size_data; i += 3) {
