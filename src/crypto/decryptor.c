@@ -78,24 +78,36 @@ unsigned char *decode(const unsigned char data[], size_t size_data,
   return result;
 }
 
-unsigned char decrypt(const unsigned char *cipher, const unsigned char *key) {
-  size_t size_txt = strlen((const char *)cipher);
+decrypted_data decrypt(encrypted_data *enc, const unsigned char *key) {
+  decrypted_data result = {0};
 
-  unsigned char *cipher_text =
-      malloc(size_txt + crypto_aead_chacha20poly1305_ietf_ABYTES);
-  unsigned char *nonce = malloc(crypto_aead_chacha20poly1305_ietf_NPUBBYTES);
-  unsigned long long cipher_len;
-  int ae = crypto_aead_chacha20poly1305_ietf_encrypt(
-      cipher_text, &cipher_len, cipher, size_txt, NULL, 0, NULL, nonce, key);
-
-  if (ae != 0) {
-    free(cipher_text);
-    free(nonce);
-    cipher_text = NULL;
-    nonce = NULL;
-
-    return *cipher_text;
+  if (enc == NULL || key == NULL) {
+    return result;
   }
 
-  return *cipher_text;
+  if (enc->cipher_len < crypto_aead_chacha20poly1305_ietf_ABYTES) {
+    return result;
+  }
+
+  size_t buffer_size =
+      ((size_t)enc->cipher_len - crypto_aead_chacha20poly1305_ietf_ABYTES);
+  result.plaintext = malloc(buffer_size + 1); // '\0'
+
+  unsigned long long plaintext_len = 0;
+
+  int ae = crypto_aead_chacha20poly1305_ietf_decrypt(
+      result.plaintext, &plaintext_len, NULL, enc->cipher_text, enc->cipher_len,
+      NULL, 0, enc->nonce, key);
+
+  if (ae != 0) {
+    free(result.plaintext);
+    result.plaintext = NULL;
+    result.plaintext_len = 0;
+
+    return result;
+  }
+
+  return result;
+
+  free(result.plaintext);
 }
