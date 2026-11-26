@@ -1,3 +1,4 @@
+#include "decryptor.h"
 #include "encryptor.h"
 #include <ncurses.h>
 #include <sodium.h>
@@ -15,7 +16,6 @@ static void draw_button(int y, int x, const char *text, int selected) {
 }
 
 static void draw_box(int y, int x, int w) {
-  /* 3 строки: верх, середина, низ */
   mvaddch(y, x, ACS_ULCORNER);
   mvhline(y, x + 1, ACS_HLINE, w - 2);
   mvaddch(y, x + w - 1, ACS_URCORNER);
@@ -34,11 +34,11 @@ static void draw_ui(int y, int x, const char *input, int len, int selected,
   mvprintw(y - 1, x, "Input:");
 
   draw_box(y, x, BOX_W);
-  /* %-*s затирает остатки после backspace */
   mvprintw(y + 1, x + 1, "%-*s", MAX_LEN, input);
 
-  draw_button(y + 4, x, "Encrypt", selected);
-  draw_button(y + 8, x, "Decrypt", selected);
+  draw_button(y + 4, x, "Encrypt", selected == 0);
+
+  draw_button(y + 7, x, "Decrypt", selected == 1);
 
   mvprintw(y + 6, x, "%-*s", BOX_W, status);
   mvprintw(y + 12, x, "Tab/Down/Up - move, Enter - confirm");
@@ -103,12 +103,14 @@ int main(void) {
   unsigned char key[crypto_aead_chacha20poly1305_ietf_KEYBYTES];
   randombytes_buf(key, sizeof(key));
 
-  size_t size_str = strlen(input);
-
   encrypted_data obj = encrypt((const unsigned char *)input, key);
-  unsigned char *text = encode(obj.cipher_text, size_str);
+  unsigned char *text = encode(obj.cipher_text, obj.cipher_len);
+  // size_t str_size = strlen((char *) text);
+  // size_t decoded_size;
+  // unsigned char *dec = decode(text, strlen((char *)text), &decoded_size);
+  // encrypted_data decode_obj = {.cipher_text = dec, .cipher_len = decoded_size};
+  // decrypted_data decrypt_text = decrypt(&decode_obj, key);
 
-  /* Результат: перенос по ширине поля */
   curs_set(0);
   mvprintw(y + 8, x, "Encrypted:");
   size_t total = strlen((const char *)text);
